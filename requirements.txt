@@ -1,0 +1,3 @@
+# Install production stuff for Heroku only.
+# For personal use, specify the sub-requirements files in the folder
+-r requirements/prod.txt
