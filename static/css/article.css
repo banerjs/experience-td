@@ -1,0 +1,50 @@
+a {
+	text-decoration: none;
+	color: #333333;
+}
+
+.content {
+	padding-left: 25%;
+	transition: all 0.4s ease 0s;
+}
+
+.self {
+	margin-left: -25%;
+	left: 25%;
+	width: 25%;
+	position: fixed;
+	height: 100%;
+	overflow-y: auto;
+	z-index: 1000;
+	transition: all 0.4s ease 0s;
+}
+
+.self img {
+	border: 5px solid;
+}
+
+.self .text {
+	padding: 2% 2% 2% 2%;
+}
+
+.self .footer {
+	position: fixed;
+	bottom: 0;
+	width: 25%;
+}
+
+.articles {
+	width: 100%;
+	padding-left: 5%;
+	padding-right: 2%;
+}
+
+.article {
+	float: left;
+	border-radius: 10px;
+	border: 1px solid;
+	padding: 1% 1% 1% 1%;
+	margin-top: 1%;
+	margin-left: 2%;
+	max-width: 480px;
+}

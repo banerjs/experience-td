@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+
+{% block head %}
+	<title>The Experience Project</title>
+	<link rel="stylesheet" href="{% static 'css/home.css' %}" />
+{% endblock %}
+
+{% block body %}
+	<a href="{% url 'home' %}"><img id="fb" src="{% static 'img/active_600.png' %}" onclick="clickImage()" /></a>
+	<script type="text/javascript">
+		// Here we subscribe to the auth.authResponseChange JavaScript event. This event is fired
+		// for any authentication related change, such as login, logout or session refresh. This means that
+		// whenever someone who was previously logged out tries to log in again, the correct case below
+		// will be handled.
+		FB.Event.subscribe('auth.authResponseChange', function(response) {
+		// Here we specify what we do with the response anytime this event occurs.
+		if (response.status === 'connected') {
+		  // The response object is returned with a status field that lets the app know the current
+		  // login status of the person. In this case, we're handling the situation where they
+		  // have logged in to the app.
+		  loginUser(validateFB);
+		}
+		});
+
+		// Here we actually send a set of POST requests to the server to indicate that the user has signed in
+		// To do that, first we need to define such a function in the absence of external libraries
+		function postToURL(path, params, method) {
+			method = method || "post";	// Set method to POST if not specified by default
+
+			// Sending a POST request without using a library
+			var form = document.createElement("form");
+			form.setAttribute("method", method);
+			form.setAttribute("action", path);
+
+			for (var key in params) {
+				if (params.hasOwnProperty(key)) {
+					var hiddenField = document.createElement("input");
+					hiddenField.setAttribute("type", "hidden");
+					hiddenField.setAttribute("name", key);
+					hiddenField.setAttribute("value", params[key]);
+
+					form.appendChild(hiddenField);
+				}
+			}
+
+			document.body.appendChild(form);
+			form.submit();
+		}
+
+		// Then we create a callback function to validate that we've got all the responses we've gotten from there
+		function validateFB(userDetails) {
+			if (userDetails.hasOwnProperty("email") && userDetails.hasOwnProperty("name") && userDetails.hasOwnProperty("url")) {
+				postToURL("{% url 'home' %}", userDetails);
+			}
+		}
+
+		// We as send the for the information from facebook
+		function loginUser(validation) {
+			var userDetails = {};
+			FB.api('/me', function(response) {
+				if (response && !response.error) {
+					userDetails["name"] = response.first_name;
+					userDetails["email"] = response.email;
+					validation(userDetails);
+				}
+			});
+			FB.api('/me/picture', { "redirect": false, "height": "380", "width": "688", "size": "normal" }, function(response) {
+				if (response && !response.error) {
+					userDetails["url"] = response["data"]["url"];
+					validation(userDetails);
+				}
+			});
+		}
+
+		// Login when the button is clicked. Otherwise do nothing
+		function clickImage() {
+			document.getElementById("fb").src = "{% static 'img/pressed_600.png' %}";
+			FB.login(function(response) {}, {scope: 'email'});
+		}
+	</script>
+{% endblock %}

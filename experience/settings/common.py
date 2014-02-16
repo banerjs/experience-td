@@ -62,7 +62,7 @@ TEMPLATE_LOADERS = (
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
+    # "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.debug",
     "django.core.context_processors.media",
     "django.core.context_processors.static",
@@ -76,8 +76,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -86,8 +86,6 @@ MIDDLEWARE_CLASSES = (
 ## APP CONFIGS ##
 INSTALLED_APPS = (
     # Django Default Apps
-    'django.contrib.admin',
-    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -96,9 +94,9 @@ INSTALLED_APPS = (
     # Third party apps
     'storages',
     'collectfast',
-    'south',
 
     # Project specific apps
+    'experience.apps.articles',
 )
 
 ROOT_URLCONF = '{0}.urls'.format(BASE_NAME)

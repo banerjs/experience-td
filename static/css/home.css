@@ -1,0 +1,10 @@
+body {
+	background-image: url("../img/background.JPG");
+	background-repeat: no-repeat;
+}
+
+#fb {
+	position: absolute;
+	bottom: 5%;
+	right: 5%;
+}

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+
+{% block head %}
+	<title>The Experience Project - {{ user.name }}</title>
+	<link rel="stylesheet" href="{% static 'css/article.css' %}" />
+	{% block edit_head %}
+	{% endblock %}
+{% endblock %}
+
+{% block body %}
+	<div class="content">
+		<div class="self">
+			<img src="{{ user.url }}" class="img-responsive" />
+			<div class="text">
+				<h3 class="text-center">{{ user.name }}</h3>
+			</div>
+			<div class="footer btn-group btn-group-justified">
+				<a href="{% url 'homepage' id=login_id name=login_name %}" class="btn btn-default">Back</a>
+				<span class="btn btn-default" onclick="clickLogout()">Logout</span>
+			</div>
+		</div>
+		{% if messages %}
+		    {% for message in messages %}
+			    <div{% if message.tags %} class="alert alert-dismissable alert-{% ifequal message.tags 'error' %}danger{% else %}{{ message.tags }}{% endifequal %}"{% endif %}>{{ message }}</div>
+		    {% endfor %}
+		{% endif %}
+		{% block edit_body %}
+		{% endblock %}
+		<div class="articles row">
+			{% for article in articles %}
+				{% if article.url %}<a href="{{ article.url }}" target="_blank">{% endif %}<div class="article panel panel-default">
+					<div class="panel-heading">
+						{% if article.author %}<p class="small text-right">{{ article.author }}</p>{% endif %}
+						<h2 class="text-center">{{ article.title }}</h2>
+					</div>
+					{% if article.reason or article.quotes %}<div class="panel-body">{% endif %}
+						{% if article.reason %}<p>{{ article.reason }}</p>{% endif %}
+						{% for quote in article.quotes %}
+							{% if forloop.first %}<blockquote class="blockquote-reverse">{% endif %}
+								<p>... {{ quote }} ...</p>
+							{% if forloop.last %}
+								<footer>Quotes from {{ article.author }}</footer>
+							</blockquote>{% endif %}
+						{% endfor %}
+					{% if article.reason or article.quotes %}</div>{% endif %}
+					{% if article.comments %}
+					<div class="panel-footer">
+						<p class="text-muted">{{ article.comments }}</p>
+					</div>
+					{% endif %}
+				</div>{% if article.url %}</a>{% endif %}
+			{% endfor %}
+		</div>
+	</div>
+	<script type="text/javascript">
+		window.onload = function() {
+			FB.getLoginStatus(handleSessionResponse);
+		};
+
+		function handleSessionResponse(response) {
+			if (response.status && response.status != 'connected') {
+				window.location.href = "{% url 'home' %}";
+			}
+		}
+
+		function clickLogout() {
+			FB.logout(handleSessionResponse);
+		}
+	</script>
+{% endblock %}

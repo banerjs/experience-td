@@ -14,12 +14,8 @@ TEMPLATE_DEBUG = True
 ## DATABASE CONFIGS ##
 DATABASES = {
 	'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'personal',
-        'USER': 'personal',
-        'PASSWORD': 'a',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'ENGINE': 'django_mongodb_engine',
+        'NAME': 'experience_db',
     }
 }
 

@@ -13,7 +13,9 @@ MANAGERS = ADMINS
 
 ## DATABASE SETTINGS ##
 DATABASES = {
-	'default': dj_database_url.config()
+	'default': {
+		'ENGINE': 'django_mongodb_engine',
+	}
 }
 
 

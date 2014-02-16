@@ -1,2 +1,19 @@
 # requirements/common.txt
-
+Collectfast==0.1.13
+git+https://github.com/django-nonrel/django@nonrel-1.5
+argparse==1.2.1
+boto==2.16.0
+dj-database-url==0.2.2
+dj-static==0.0.5
+git+https://github.com/django-nonrel/mongodb-engine
+django-storages==1.1.8
+git+https://github.com/django-nonrel/djangotoolbox
+gunicorn==18.0
+psycopg2==2.5.1
+pymongo==2.6.3
+pystache==0.5.3
+python-dateutil==2.2
+pytz==2013.9
+six==1.5.2
+static==1.0.2
+wsgiref==0.1.2

@@ -1,0 +1,26 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="robots" content="noindex, nollow" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"></link>
+		{% block head %}
+		{% endblock %}
+		<link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}" />
+		<script type="text/javascript" src="//connect.facebook.net/en_US/all.js"></script>
+	</head>
+	<body>
+		{% block body %}
+		{% endblock %}
+		<script type="text/javascript">
+			FB.init({
+			appId      : '262014907294794',
+			status     : true, // check login status
+			cookie     : true, // enable cookies to allow the server to access the session
+			xfbml      : true  // parse XFBML
+			});
+		</script>
+	</body>
+</html>
