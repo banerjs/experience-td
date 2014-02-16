@@ -6,7 +6,7 @@
 migration/
 mock/
 /media/
-img/
+.env
 
 # Compiled source #
 ###################
