@@ -3,6 +3,7 @@ Prod Django settings for the guidefinder project.
 """
 
 import os
+import urlparse
 import dj_database_url
 from common import *
 
@@ -12,17 +13,17 @@ MANAGERS = ADMINS
 
 
 ## DATABASE SETTINGS ##
+url = urlparse.urlparse(os.getenv('MONGOHQ_URL'))
 DATABASES = {
 	'default': {
 		'ENGINE': 'django_mongodb_engine',
-		'NAME': 'app22270305',
-		'USER': 'heroku',
+		'NAME': url.path[1:],
+		'USER': url.username,
 		'PASSWORD': os.getenv('MONGODB_PWD'),
-		'HOST': 'mongodb://heroku:3e994495838356bce8f3ff4ae6dafbcf@troup.mongohq.com/app22270305',
-		'PORT': 10030,
+		'HOST': url.hostname,
+		'PORT': url.port,
 	}
 }
-
 
 ## HEROKU SETTINGS ##
 # Honor the X-Forwarded-Proto header for request.is_secure()
