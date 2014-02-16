@@ -15,6 +15,11 @@ MANAGERS = ADMINS
 DATABASES = {
 	'default': {
 		'ENGINE': 'django_mongodb_engine',
+		'NAME': 'app22270305',
+		'USER': 'heroku',
+		'PASSWORD': os.getenv('MONGODB_PWD'),
+		'HOST': 'mongodb://heroku:3e994495838356bce8f3ff4ae6dafbcf@troup.mongohq.com/app22270305',
+		'PORT': 10030,
 	}
 }
 
