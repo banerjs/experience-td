@@ -34,7 +34,7 @@
 							{% if forloop.first %}<blockquote class="blockquote-reverse">{% endif %}
 								<p>... {{ quote }} ...</p>
 							{% if forloop.last %}
-								<footer>Quotes from {{ article.author }}</footer>
+								{% if article.author %}<footer>Quotes from {{ article.author }}</footer>{% endif %}
 							</blockquote>{% endif %}
 						{% endfor %}
 					{% if article.reason or article.quotes %}</div>{% endif %}
