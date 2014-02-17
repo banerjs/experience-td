@@ -1,8 +1,9 @@
 from datetime import datetime
 
 from django.contrib import messages
+from django.core import serializers
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
-from django.http import Http404, HttpResponseForbidden
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.template.defaultfilters import slugify
 
@@ -13,7 +14,7 @@ from experience.apps.articles.models import User, Article
 
 def sort_articles(articles):
 	unsorted = articles.values()
-	return sorted(unsorted, key=(lambda x: x.creation_date), reverse=True)
+	return sorted(unsorted, key=(lambda x: x.creation_date), reverse=False)
 
 # These are normal template based views
 
@@ -47,6 +48,7 @@ def render_articles(request, id, name, template_name="articles.html"):
 		user = User.objects.get(id=id)
 	except:
 		raise Http404
+
 	return render(request, template_name, { 'articles': sort_articles(user.articles), 'user': User.objects.get(id=id), \
 											'login_id': request.get_signed_cookie("user_id"), \
 											'login_name': slugify(request.get_signed_cookie("user_name")), \
@@ -57,6 +59,8 @@ def render_edit(request, id, name, template_name="edit.html"):
 		user = User.objects.get(id=id)
 	except:
 		raise Http404
+	if request.get_signed_cookie("user_id") != user.id:
+		raise PermissionDenied
 
 	form = ArticleForm(data=request.POST or None)
 	if form.is_valid():
@@ -75,8 +79,23 @@ def render_edit(request, id, name, template_name="edit.html"):
 
 # These are AJAX views
 
-def ajax_articles(request):
-	return None
+def ajax_articles(request, id, name):
+	try:
+		user = User.objects.get(id=id)
+	except:
+		return Http404
+	return HttpResponse(serializers.serialize('json', sort_articles(user.articles)), content_type="application/json")
 
-def ajax_delete(request):
-	return None
+def ajax_delete(request, id, name, article_id):
+	try:
+		user = User.objects.get(id=id)
+		article = user.articles[article_id]
+	except:
+		raise Http404
+	if request.get_signed_cookie("user_id") != user.id:
+		raise PermissionDenied
+
+	del user.articles[article_id]
+	user.save()
+
+	return HttpResponse("Done", content_type="application/json")

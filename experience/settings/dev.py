@@ -24,6 +24,10 @@ DATABASES = {
 INSTALLED_APPS += (
 )
 
+TEMPLATE_CONTEXT_PROCESSORS += (
+	"experience.libs.processors.context.include_settings",
+)
+
 
 ## STATIC AND MEDIA FILE CONFIGS ##
 STATIC_URL = '/static/'

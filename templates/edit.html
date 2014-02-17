@@ -6,10 +6,11 @@
 	<title>The Experience Project - {{ user.name }}</title>
 	<link rel="stylesheet" href="{% static 'css/article.css' %}" />
 	<link rel="stylesheet" href="{% static 'css/edit.css' %}" />
+	<script type="text/javascript" src="{% static 'js/edit.js' %}"></script>
 {% endblock %}
 
 {% block body %}
-	<div class="content">
+	<div class="content" ng-app="EditArticleApp">
 		<div class="self">
 			<img src="{{ user.url }}" class="img-responsive" />
 			<div class="text">
@@ -21,68 +22,80 @@
 			</div>
 		</div>
 		{% include 'messages.html' %}
-		<div class="well insert">
-			<form class="form-horizontal" id="newArticleForm" action="" method="post">{% csrf_token %}
+		<div class="well insert" ng-controller="ArticleFormCtrl" ng-model="article">
+			<form class="form-horizontal" id="newArticleForm" action="{% url 'edit' id=login_id name=login_name %}" method="post">{% csrf_token %}{% verbatim %}
 				<legend>New Article</legend>
-				<input type="hidden" name="article_id" />
+				<input type="hidden" name="article_id" value="{{ article.article_id }}" />
 				<div class="form-group">
 					<label for="article_title" class="col-sm-1 control-label">Title</label>
-					<div class="col-sm-11"><input type="text" class="form-control" placeholder="Monty Python and the Holy Grail" name="article_title" /></div>
+					<div class="col-sm-11"><input type="text" class="form-control" placeholder="Monty Python and the Holy Grail" name="article_title" value="{{ article.title }}" /></div>
 				</div>
 				<div class="form-group">
 					<label for="article_author" class="col-sm-1 control-label">Author</label>
-					<div class="col-sm-11"><input type="text" class="form-control" placeholder="Brian" name="article_author" /></div>
+					<div class="col-sm-11"><input type="text" class="form-control" placeholder="Brian" name="article_author" value="{{ article.author }}" /></div>
 				</div>
 				<div class="form-group">
 					<label for="article_url" class="col-sm-1 control-label">URL</label>
-					<div class="col-sm-11"><input type="text" class="form-control" placeholder="http://python.org" name="article_url" /></div>
+					<div class="col-sm-11"><input type="text" class="form-control" placeholder="http://python.org" name="article_url" value="{{ article.url }}" /></div>
 				</div>
 				<div class="form-group">
 					<label for="article_reasons" class="col-sm-1 control-label">Why Read?</label>
-					<div class="col-sm-11"><textarea class="form-control" placeholder="Catching up on Mythology" name="article_reasons" rows="3" /></textarea></div>
+					<div class="col-sm-11"><textarea class="form-control" placeholder="Catching up on Mythology" name="article_reasons" rows="3" />{{ article.reasons }}</textarea></div>
 				</div>
 				<div class="form-group">
 					<label for="article_comments" class="col-sm-1 control-label">Comments</label>
-					<div class="col-sm-11"><textarea class="form-control" placeholder="Jolly good entertainment" name="article_comments" /></textarea></div>
+					<div class="col-sm-11"><textarea class="form-control" placeholder="Jolly good entertainment" name="article_comments" />{{ article.comments }}</textarea></div>
+				</div>
+				<div class="form-group" ng-repeat="quote in article.quotes track by $index">
+					<label for="article_quote_{{ $index }}" class="col-sm-1 control-label">Quote</label>
+					<div class="col-sm-10"><input type="text" class="form-control" placeholder="We are the knights who say Ni!" name="article_quote_{{ $index }}" value="{{ quote }}" ng-model="article.quotes[$index]" /></div>
+					<span class="col-sm-1 btn btn-default" ng-click="removeQuote($index)"><span class="glyphicon glyphicon-minus"></span></span>
+				</div>
+				<div class="form-group" ng-model="quotes">
+					<label class="col-sm-1 text-right control-label" ng-if="article.quotes.length === 0">Quote</label><span class="col-sm-1" ng-if="article.quotes.length !== 0"></span>
+					<span class="col-sm-1 btn btn-default" ng-click="addQuote()"><span class="glyphicon glyphicon-plus"></span></span>
 				</div>
 				<div class="form-group">
-					<label for="article_quote_0" class="col-sm-1 control-label">Quote</label>
-					<div class="col-sm-10"><input type="text" class="form-control" placeholder="We are the knights who say Ni!" name="article_quote_0" number="0" /></div>
-					<span class="col-sm-1 btn btn-default" onclick="addQuote()" id="addButton"><span class="glyphicon glyphicon-plus"></span></span>
-				</div>
-				<div class="form-group">
-					<button type="submit" class="col-sm-4 col-sm-offset-4 btn btn-primary">Submit</button>
+					<button type="submit" class="col-sm-4 col-sm-offset-4 btn btn-primary" ng-if="!article.article_id">Submit</button>
+					<span class="btn btn-default col-sm-2 col-sm-offset-4" ng-if="article.article_id" ng-click="clearForm()">Clear Form</span>
+					<button type="submit" class="col-sm-2 btn btn-primary" ng-if="article.article_id">Submit</button>
 				</div>
 			</form>
 		</div>
-		<div class="articles row">
-			{% for article in articles %}
-				<div class="article panel panel-default">
-					<div class="panel-heading">
-						<span class="hidden">{{ article.article_id }}</span>
-						{% if article.author %}<p class="small text-right">{{ article.author }}</p>{% endif %}
-						<h2 class="text-center">{{ article.title }}</h2>
-					</div>
-					{% if article.reason or article.quotes %}<div class="panel-body">{% endif %}
-						{% if article.reasons %}<p>{{ article.reasons }}</p>{% endif %}
-						{% for quote in article.quotes %}
-							{% if forloop.first %}<blockquote class="blockquote-reverse">{% endif %}
-								<p>... {{ quote }} ...</p>
-							{% if forloop.last %}
-								<footer>Quotes from {{ article.author }}</footer>
-							</blockquote>{% endif %}
-						{% endfor %}
-					{% if article.reason or article.quotes %}</div>{% endif %}
-					{% if article.comments %}
-					<div class="panel-footer">
-						<p class="text-muted">{{ article.comments }}</p>
-					</div>
-					{% endif %}
+		{% endverbatim %}
+		{% verbatim %}
+		<div class="articles row" ng-controller="ArticleViewCtrl">
+			<a href="" ng-repeat="article in articles" ng-click="publishArticle(article);"><div class="article panel panel-default">
+				<div class="panel-heading">
+					<span class="hidden">{{ article.article_id }}</span>
+					<p class="small text-left col-sm-6" ng-if="article.author">{{ article.author }}</p>
+					<p class="small text-right col-sm-6" ng-click="removeArticle(article.article_id)" ng-if="article.author"><span class="glyphicon glyphicon-remove"></span></p>
+					<p class="small text-right col-sm-6 col-sm-offset-6" ng-click="removeArticle(article.article_id)" ng-if="!article.author"><span class="glyphicon glyphicon-remove"></span></p>
+					<h2 class="text-center">{{ article.title }}</h2>
 				</div>
-			{% endfor %}
+				<div class="panel-body" ng-if="article.reasons || article.quotes">
+					<p ng-if="article.reasons">{{ article.reasons }}</p>
+					<blockquote class="blockquote-reverse" ng-if="article.quotes">
+						<p ng-repeat="quote in article.quotes">... {{ quote }} ...</p>
+						<footer ng-if="article.author">Quotes from {{ article.author }}</footer>
+					</blockquote>
+				</div>
+				<div class="panel-footer" ng-if="article.comments">
+					<p class="text-muted">{{ article.comments }}</p>
+				</div>
+			</div></a>
 		</div>
+		{% endverbatim %}
 	</div>
 	<script type="text/javascript">
+		angular.module('EditArticleApp').config(function ($sceDelegateProvider) {
+		$sceDelegateProvider.resourceUrlWhitelist(['{% if settings.DEBUG %}http://{{ request.META.HTTP_HOST }}{% endif %}{{ STATIC_URL }}**'])
+		}).constant('URLCONF', {
+			STATIC_URL: "{{ STATIC_URL }}",
+			articles: "{% url 'AJAX_articles' id=login_id name=login_name %}",
+			remove: "{% url 'AJAX_delete' id=login_id name=login_name article_id=99999999999999 %}"
+		});
+
 		window.onload = function() {
 			FB.getLoginStatus(handleSessionResponse);
 		};
@@ -95,38 +108,6 @@
 
 		function clickLogout() {
 			FB.logout(handleSessionResponse);
-		}
-
-		function addQuote() {
-			var form = document.getElementById("newArticleForm");
-			var button = document.getElementById("addButton");
-			var lastQuote = button.parentNode;
-			var number = parseInt(lastQuote.children[1].children[0].getAttribute("number")) + 1;
-
-			var newDiv = document.createElement("div");
-			newDiv.setAttribute("class", "form-group");
-
-			var newLabel = document.createElement("label");
-			newLabel.setAttribute("for", "article_quote");
-			newLabel.setAttribute("class", "col-sm-1 control-label");
-			newLabel.innerHTML = "Quote";
-
-			var newInputDiv = document.createElement("div");
-			newInputDiv.setAttribute("class", "col-sm-10");
-
-			var newInput = document.createElement("input");
-			newInput.setAttribute("type", "text");
-			newInput.setAttribute("class", "form-control");
-			newInput.setAttribute("placeholder", "We also say ZXMNCBHJSBDJB!");
-			newInput.setAttribute("name", "article_quote_" + number);
-			newInput.setAttribute("number", String(number));
-
-			newInputDiv.appendChild(newInput);
-			newDiv.appendChild(newLabel);
-			newDiv.appendChild(newInputDiv);
-			lastQuote.removeChild(button);
-			newDiv.appendChild(button);
-			form.insertBefore(newDiv, lastQuote.nextSibling);
 		}
 	</script>
 {% endblock %}
