@@ -10,7 +10,7 @@
 {% block body %}
 	<div class="content">
 		<div class="self">
-			<img src="{{ user.url }}" class="img-responsive" />
+			<a href="{{ user.get_edit_url }}"><img src="{{ user.url }}" class="img-responsive" /></a>
 			<div class="text">
 				<h3 class="text-center">{{ user.name }}</h3>
 			</div>
