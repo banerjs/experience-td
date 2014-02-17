@@ -96,6 +96,7 @@
 			remove: "{% url 'AJAX_delete' id=login_id name=login_name article_id=99999999999999 %}"
 		});
 
+		{% ifnotequal user.email "tantum.collins@gmail.com" %}
 		window.onload = function() {
 			FB.getLoginStatus(handleSessionResponse);
 		};
@@ -109,5 +110,10 @@
 		function clickLogout() {
 			FB.logout(handleSessionResponse);
 		}
+		{% else %}
+		function clickLogout() {
+			window.location.href = "{% url 'home' %}";
+		}
+		{% endifnotequal %}
 	</script>
 {% endblock %}

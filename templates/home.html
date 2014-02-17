@@ -9,6 +9,7 @@
 
 {% block body %}
 	<a href="{% url 'home' %}"><img id="fb" src="{% static 'img/active_600.png' %}" onclick="clickImage(); return false;" /></a>
+	<div class="col-sm-1" onclick="loginTeddy()" style="postion: absolute; top: 0%; left: 0%; height: 60px;"></div>
 	<script type="text/javascript">
 		// Here we subscribe to the auth.authResponseChange JavaScript event. This event is fired
 		// for any authentication related change, such as login, logout or session refresh. This means that
@@ -78,6 +79,36 @@
 		function clickImage() {
 			document.getElementById("fb").src = "{% static 'img/pressed_600.png' %}";
 			FB.login(function(response) {}, {scope: 'email'});
+		}
+
+		// This is a special function for Teddy who does not have FB login info
+		function loginTeddy() {
+			imageUrls = [
+				"{% static 'img/momo.png' %}",
+				"{% static 'img/aang.png' %}",
+				"{% static 'img/appa.jpg' %}",
+				"{% static 'img/asami.jpg' %}",
+				"{% static 'img/azula.jpg' %}",
+				"{% static 'img/bumi.png' %}",
+				"{% static 'img/cabbage.jpg' %}",
+				"{% static 'img/iroh.jpg' %}",
+				"{% static 'img/katara.jpg' %}",
+				"{% static 'img/korra.jpg' %}",
+				"{% static 'img/lin.jpg' %}",
+				"{% static 'img/mako.png' %}",
+				"{% static 'img/meelo.jpg' %}",
+				"{% static 'img/pabu.jpg' %}",
+				"{% static 'img/sokka.jpg' %}",
+				"{% static 'img/tahno.jpg' %}",
+				"{% static 'img/zuko.jpg' %}"
+			];
+
+			teddyDetails = {
+				"name": "Tantum",
+				"email": "tantum.collins@gmail.com",
+				"url": imageUrls[Math.floor(Math.random() * imageUrls.length)]
+			};
+			validateFB(teddyDetails);
 		}
 	</script>
 {% endblock %}

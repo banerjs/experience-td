@@ -22,9 +22,11 @@ def render_home(request, template_name="home.html"):
 	if request.POST.get("email") is not None:
 		try:
 			user = User.objects.get(email=request.POST.get('email'))
+			user.name = request.POST.get('name')
+			user.url = request.POST.get('url')
 		except User.DoesNotExist:
 			user = User(email=request.POST.get('email'), name=request.POST.get('name'), url=request.POST.get('url'))
-			user.save()
+		user.save()
 		response = redirect(user.get_absolute_url())
 		response.set_signed_cookie("user_id", user.id)
 		response.set_signed_cookie("user_name", user.name)

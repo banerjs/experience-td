@@ -48,6 +48,7 @@
 		</div>
 	</div>
 	<script type="text/javascript">
+		{% ifnotequal user.email "tantum.collins@gmail.com" %}
 		window.onload = function() {
 			FB.getLoginStatus(handleSessionResponse);
 		};
@@ -61,5 +62,10 @@
 		function clickLogout() {
 			FB.logout(handleSessionResponse);
 		}
+		{% else %}
+		function clickLogout() {
+			window.location.href = "{% url 'home' %}";
+		}
+		{% endifnotequal %}
 	</script>
 {% endblock %}
