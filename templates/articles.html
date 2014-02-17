@@ -5,8 +5,6 @@
 {% block head %}
 	<title>The Experience Project - {{ user.name }}</title>
 	<link rel="stylesheet" href="{% static 'css/article.css' %}" />
-	{% block edit_head %}
-	{% endblock %}
 {% endblock %}
 
 {% block body %}
@@ -21,22 +19,17 @@
 				<span class="btn btn-default" onclick="clickLogout()">Logout</span>
 			</div>
 		</div>
-		{% if messages %}
-		    {% for message in messages %}
-			    <div{% if message.tags %} class="alert alert-dismissable alert-{% ifequal message.tags 'error' %}danger{% else %}{{ message.tags }}{% endifequal %}"{% endif %}>{{ message }}</div>
-		    {% endfor %}
-		{% endif %}
-		{% block edit_body %}
-		{% endblock %}
+		{% include 'messages.html' %}
 		<div class="articles row">
 			{% for article in articles %}
 				{% if article.url %}<a href="{{ article.url }}" target="_blank">{% endif %}<div class="article panel panel-default">
 					<div class="panel-heading">
+						<span class="hidden">{{ article.article_id }}</span>
 						{% if article.author %}<p class="small text-right">{{ article.author }}</p>{% endif %}
 						<h2 class="text-center">{{ article.title }}</h2>
 					</div>
 					{% if article.reason or article.quotes %}<div class="panel-body">{% endif %}
-						{% if article.reason %}<p>{{ article.reason }}</p>{% endif %}
+						{% if article.reasons %}<p>{{ article.reasons }}</p>{% endif %}
 						{% for quote in article.quotes %}
 							{% if forloop.first %}<blockquote class="blockquote-reverse">{% endif %}
 								<p>... {{ quote }} ...</p>

@@ -1,0 +1,5 @@
+{% if messages %}
+    {% for message in messages %}
+	    <div{% if message.tags %} class="alert alert-dismissable alert-{% ifequal message.tags 'error' %}danger{% else %}{{ message.tags }}{% endifequal %}"{% endif %}>{{ message }}</div>
+    {% endfor %}
+{% endif %}

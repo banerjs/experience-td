@@ -1,46 +1,102 @@
-{% extends 'articles.html' %}
+{% extends 'base.html' %}
 
 {% load staticfiles %}
 
-{% block edit_head %}
+{% block head %}
+	<title>The Experience Project - {{ user.name }}</title>
+	<link rel="stylesheet" href="{% static 'css/article.css' %}" />
 	<link rel="stylesheet" href="{% static 'css/edit.css' %}" />
 {% endblock %}
 
-{% block edit_body %}
-	<div class="well insert">
-		<form class="form-horizontal" id="newArticleForm" action="" method="post">{% csrf_token %}
-			<legend>New Article</legend>
-			<div class="form-group">
-				<label for="article_title" class="col-sm-1 control-label">Title</label>
-				<div class="col-sm-11"><input type="text" class="form-control" placeholder="Monty Python and the Holy Grail" name="article_title" /></div>
+{% block body %}
+	<div class="content">
+		<div class="self">
+			<img src="{{ user.url }}" class="img-responsive" />
+			<div class="text">
+				<h3 class="text-center">{{ user.name }}</h3>
 			</div>
-			<div class="form-group">
-				<label for="article_author" class="col-sm-1 control-label">Author</label>
-				<div class="col-sm-11"><input type="text" class="form-control" placeholder="Brian" name="article_author" /></div>
+			<div class="footer btn-group btn-group-justified">
+				<a href="{% url 'homepage' id=login_id name=login_name %}" class="btn btn-default">Back</a>
+				<span class="btn btn-default" onclick="clickLogout()">Logout</span>
 			</div>
-			<div class="form-group">
-				<label for="article_url" class="col-sm-1 control-label">URL</label>
-				<div class="col-sm-11"><input type="text" class="form-control" placeholder="http://python.org" name="article_url" /></div>
-			</div>
-			<div class="form-group">
-				<label for="article_reasons" class="col-sm-1 control-label">Why Read?</label>
-				<div class="col-sm-11"><textarea class="form-control" placeholder="Catching up on Mythology" name="article_reasons" rows="3" /></textarea></div>
-			</div>
-			<div class="form-group">
-				<label for="article_comments" class="col-sm-1 control-label">Comments</label>
-				<div class="col-sm-11"><textarea class="form-control" placeholder="Jolly good entertainment" name="article_comments" /></textarea></div>
-			</div>
-			<div class="form-group">
-				<label for="article_quote_0" class="col-sm-1 control-label">Quote</label>
-				<div class="col-sm-10"><input type="text" class="form-control" placeholder="We are the knights who say Ni!" name="article_quote_0" number="0" /></div>
-				<span class="col-sm-1 btn btn-default" onclick="addQuote()" id="addButton"><span class="glyphicon glyphicon-plus"></span></span>
-			</div>
-			<div class="form-group">
-				<button type="submit" class="col-sm-4 col-sm-offset-4 btn btn-primary">Submit</button>
-			</div>
-		</form>
+		</div>
+		{% include 'messages.html' %}
+		<div class="well insert">
+			<form class="form-horizontal" id="newArticleForm" action="" method="post">{% csrf_token %}
+				<legend>New Article</legend>
+				<input type="hidden" name="article_id" />
+				<div class="form-group">
+					<label for="article_title" class="col-sm-1 control-label">Title</label>
+					<div class="col-sm-11"><input type="text" class="form-control" placeholder="Monty Python and the Holy Grail" name="article_title" /></div>
+				</div>
+				<div class="form-group">
+					<label for="article_author" class="col-sm-1 control-label">Author</label>
+					<div class="col-sm-11"><input type="text" class="form-control" placeholder="Brian" name="article_author" /></div>
+				</div>
+				<div class="form-group">
+					<label for="article_url" class="col-sm-1 control-label">URL</label>
+					<div class="col-sm-11"><input type="text" class="form-control" placeholder="http://python.org" name="article_url" /></div>
+				</div>
+				<div class="form-group">
+					<label for="article_reasons" class="col-sm-1 control-label">Why Read?</label>
+					<div class="col-sm-11"><textarea class="form-control" placeholder="Catching up on Mythology" name="article_reasons" rows="3" /></textarea></div>
+				</div>
+				<div class="form-group">
+					<label for="article_comments" class="col-sm-1 control-label">Comments</label>
+					<div class="col-sm-11"><textarea class="form-control" placeholder="Jolly good entertainment" name="article_comments" /></textarea></div>
+				</div>
+				<div class="form-group">
+					<label for="article_quote_0" class="col-sm-1 control-label">Quote</label>
+					<div class="col-sm-10"><input type="text" class="form-control" placeholder="We are the knights who say Ni!" name="article_quote_0" number="0" /></div>
+					<span class="col-sm-1 btn btn-default" onclick="addQuote()" id="addButton"><span class="glyphicon glyphicon-plus"></span></span>
+				</div>
+				<div class="form-group">
+					<button type="submit" class="col-sm-4 col-sm-offset-4 btn btn-primary">Submit</button>
+				</div>
+			</form>
+		</div>
+		<div class="articles row">
+			{% for article in articles %}
+				<div class="article panel panel-default">
+					<div class="panel-heading">
+						<span class="hidden">{{ article.article_id }}</span>
+						{% if article.author %}<p class="small text-right">{{ article.author }}</p>{% endif %}
+						<h2 class="text-center">{{ article.title }}</h2>
+					</div>
+					{% if article.reason or article.quotes %}<div class="panel-body">{% endif %}
+						{% if article.reasons %}<p>{{ article.reasons }}</p>{% endif %}
+						{% for quote in article.quotes %}
+							{% if forloop.first %}<blockquote class="blockquote-reverse">{% endif %}
+								<p>... {{ quote }} ...</p>
+							{% if forloop.last %}
+								<footer>Quotes from {{ article.author }}</footer>
+							</blockquote>{% endif %}
+						{% endfor %}
+					{% if article.reason or article.quotes %}</div>{% endif %}
+					{% if article.comments %}
+					<div class="panel-footer">
+						<p class="text-muted">{{ article.comments }}</p>
+					</div>
+					{% endif %}
+				</div>
+			{% endfor %}
+		</div>
 	</div>
 	<script type="text/javascript">
+		window.onload = function() {
+			FB.getLoginStatus(handleSessionResponse);
+		};
+
+		function handleSessionResponse(response) {
+			if (response.status && response.status != 'connected') {
+				window.location.href = "{% url 'home' %}";
+			}
+		}
+
+		function clickLogout() {
+			FB.logout(handleSessionResponse);
+		}
+
 		function addQuote() {
 			var form = document.getElementById("newArticleForm");
 			var button = document.getElementById("addButton");

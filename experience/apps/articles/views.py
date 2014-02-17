@@ -1,5 +1,7 @@
+from datetime import datetime
+
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.template.defaultfilters import slugify
@@ -7,7 +9,13 @@ from django.template.defaultfilters import slugify
 from experience.apps.articles.forms import ArticleForm
 from experience.apps.articles.models import User, Article
 
-# Create your views here.
+# Helper functions for the views
+
+def sort_articles(articles):
+	unsorted = articles.values()
+	return sorted(unsorted, key=(lambda x: x.creation_date), reverse=True)
+
+# These are normal template based views
 
 def render_home(request, template_name="home.html"):
 	if request.POST.get("email") is not None:
@@ -39,7 +47,10 @@ def render_articles(request, id, name, template_name="articles.html"):
 		user = User.objects.get(id=id)
 	except:
 		raise Http404
-	return render(request, template_name, { 'articles': user.articles, 'user': User.objects.get(id=id), 'login_id': request.get_signed_cookie("user_id"), 'login_name': slugify(request.get_signed_cookie("user_name")) })
+	return render(request, template_name, { 'articles': sort_articles(user.articles), 'user': User.objects.get(id=id), \
+											'login_id': request.get_signed_cookie("user_id"), \
+											'login_name': slugify(request.get_signed_cookie("user_name")), \
+										  })
 
 def render_edit(request, id, name, template_name="edit.html"):
 	try:
@@ -49,9 +60,23 @@ def render_edit(request, id, name, template_name="edit.html"):
 
 	form = ArticleForm(data=request.POST or None)
 	if form.is_valid():
-		form.save(user)
+		try:
+			form.save(user)
+		except ObjectDoesNotExist:
+			messages.error(request, "The article could not be saved. There was an error")
 		messages.success(request, "The Article has been submitted successfully")
 	elif request.POST:
 		messages.error(request, "There are errors in this form. Title is a Required Field")
 
-	return render(request, template_name, { 'articles': user.articles, 'user': user, 'login_id': request.get_signed_cookie("user_id"), 'login_name': slugify(request.get_signed_cookie("user_name")) })
+	return render(request, template_name, { 'articles': sort_articles(user.articles), 'user': user, \
+											'login_id': request.get_signed_cookie("user_id"), \
+											'login_name': slugify(request.get_signed_cookie("user_name")), \
+										  })
+
+# These are AJAX views
+
+def ajax_articles(request):
+	return None
+
+def ajax_delete(request):
+	return None
