@@ -5,10 +5,11 @@
 {% block head %}
 	<title>The Experience Project - {{ user.name }}</title>
 	<link rel="stylesheet" href="{% static 'css/article.css' %}" />
+	<script type="text/javascript" src="{% static 'js/articles.js' %}"></script>
 {% endblock %}
 
 {% block body %}
-	<div class="content">
+	<div class="content" ng-app="ViewArticleApp">
 		<div class="self">
 			<a href="{{ user.get_edit_url }}"><img src="{{ user.url }}" class="img-responsive" /></a>
 			<div class="text">
@@ -20,34 +21,56 @@
 			</div>
 		</div>
 		{% include 'messages.html' %}
-		<div class="articles row">
-			{% for article in articles %}
-				{% if article.url %}<a href="{{ article.url }}" target="_blank">{% endif %}<div class="article panel panel-default">
-					<div class="panel-heading">
-						<span class="hidden">{{ article.article_id }}</span>
-						{% if article.author %}<p class="small text-right">{{ article.author }}</p>{% endif %}
-						<h2 class="text-center">{{ article.title }}</h2>
-					</div>
-					{% if article.reason or article.quotes %}<div class="panel-body">{% endif %}
-						{% if article.reasons %}<p>{{ article.reasons }}</p>{% endif %}
-						{% for quote in article.quotes %}
-							{% if forloop.first %}<blockquote class="blockquote-reverse">{% endif %}
-								<p>... {{ quote }} ...</p>
-							{% if forloop.last %}
-								{% if article.author %}<footer>Quotes from {{ article.author }}</footer>{% endif %}
-							</blockquote>{% endif %}
-						{% endfor %}
-					{% if article.reason or article.quotes %}</div>{% endif %}
-					{% if article.comments %}
-					<div class="panel-footer">
-						<p class="text-muted">{{ article.comments }}</p>
-					</div>
-					{% endif %}
-				</div>{% if article.url %}</a>{% endif %}
-			{% endfor %}
+		{% verbatim %}
+		<div class="articles row" ng-controller="ArticleViewCtrl">
+		<div ng-repeat="article in articles">
+			<a href="{{ article.url }}" target="_blank" ng-if="article.url"><div class="article panel panel-default">
+				<div class="panel-heading">
+					<span class="hidden">{{ article.article_id }}</span>
+					<p class="small text-right" ng-if="article.author">{{ article.author }}</p>
+					<h2 class="text-center">{{ article.title }}</h2>
+				</div>
+				<div class="panel-body" ng-if="article.reasons || article.quotes">
+					<p ng-if="article.reasons">{{ article.reasons }}</p>
+					<blockquote class="blockquote-reverse" ng-if="article.quotes">
+							<p ng-repeat="quote in article.quotes">... {{ quote }} ...</p>
+							<footer ng-if="article.author">Quotes from {{ article.author }}</footer>
+						</blockquote>
+				</div>
+				<div class="panel-footer" ng-if="article.comments">
+					<p class="text-muted">{{ article.comments }}</p>
+				</div>
+			</div></a>
+			<div class="article panel panel-default" ng-if="!article.url">
+				<div class="panel-heading">
+					<span class="hidden">{{ article.article_id }}</span>
+					<p class="small text-right" ng-if="article.author">{{ article.author }}</p>
+					<h2 class="text-center">{{ article.title }}</h2>
+				</div>
+				<div class="panel-body" ng-if="article.reasons || article.quotes">
+					<p ng-if="article.reasons">{{ article.reasons }}</p>
+					<blockquote class="blockquote-reverse" ng-if="article.quotes">
+							<p ng-repeat="quote in article.quotes">... {{ quote }} ...</p>
+							<footer ng-if="article.author">Quotes from {{ article.author }}</footer>
+						</blockquote>
+				</div>
+				<div class="panel-footer" ng-if="article.comments">
+					<p class="text-muted">{{ article.comments }}</p>
+				</div>
+			</div>
 		</div>
+		</div>
+		{% endverbatim %}
 	</div>
 	<script type="text/javascript">
+		angular.module('ViewArticleApp').config(function ($sceDelegateProvider) {
+		$sceDelegateProvider.resourceUrlWhitelist(['{% if settings.DEBUG %}http://{{ request.META.HTTP_HOST }}{% endif %}{{ STATIC_URL }}**'])
+		}).constant('URLCONF', {
+			STATIC_URL: "{{ STATIC_URL }}",
+			articles: "{% url 'AJAX_articles' id=user.id name=user.name|slugify %}",
+			remove: "{% url 'AJAX_delete' id=login_id name=login_name article_id=99999999999999 %}"
+		});
+
 		{% ifnotequal user.email "tantum.collins@gmail.com" %}
 		function handleSessionResponse(response) {
 			if (response.status && response.status != 'connected') {
